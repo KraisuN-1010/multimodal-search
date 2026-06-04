@@ -1,0 +1,6 @@
+torch --index-url https://download.pytorch.org/whl/cpu
+transformers==4.40.0
+pillow==10.3.0
+pandas==2.2.2
+faiss-cpu==1.8.0
+streamlit==1.35.0
