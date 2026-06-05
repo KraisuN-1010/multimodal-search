@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# Ignore python cache files
+__pycache__/
+*.pyc
+
+# Ignore our data pipeline outputs and sample assets
+data/images/
+data/vector_index.bin
+data/file_mapping.txt
