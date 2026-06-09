@@ -12,8 +12,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
-# Expose the default Streamlit port
-EXPOSE 8501
+# Expose port 8000 for standard Web REST API traffic
+EXPOSE 8000
 
-# Command to run the application
-CMD ["streamlit", "run", "app/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Set environment variable to make sure module imports map perfectly
+ENV PYTHONPATH=/app
+
+# Command to run the high-performance FastAPI production server
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
