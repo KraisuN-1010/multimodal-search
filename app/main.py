@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 from PIL import Image
-from app.engine import multimodal_search
+from app.engine import multimodal_search, build_vector_index_from_cloud
 
 app = FastAPI(
     title="Tied Up with Creativity - Multimodal Search API",
@@ -31,6 +31,18 @@ def health_check():
     Validates infrastructure availability and server connectivity status.
     """
     return {"status": "online", "message": "Search infrastructure engine fully initialized."}
+
+@app.post("/sync")
+def synchronize_database_index():
+    """
+    Administrative Endpoint: Connects to Supabase, streams all bucket images into 
+    transient RAM, extracts CLIP vectors, and compiles the localized FAISS index.
+    """
+    try:
+        build_vector_index_from_cloud()
+        return {"success": True, "message": "FAISS vector index and cloud file mappings compiled successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Synchronization failed: {str(e)}")
 
 @app.post("/search/text")
 def search_by_text(payload: TextQueryRequest):
