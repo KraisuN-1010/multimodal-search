@@ -11,7 +11,8 @@ DEFAULT_INDEX = os.path.join(BASE_DIR, "data", "vector_index.bin")
 DEFAULT_MAPPING = os.path.join(BASE_DIR, "data", "file_mapping.txt")
 
 # Hugging Face Inference configuration
-API_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/openai/clip-vit-base-patch32"
+
+API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
 HF_TOKEN = os.getenv("HF_TOKEN", "ACTUAL_HF_TOKEN_HERE")
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
