@@ -1,6 +1,5 @@
 import os
 import io
-import shutil
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -10,10 +9,10 @@ from app.engine import multimodal_search
 
 app = FastAPI(
     title="Tied Up with Creativity - Multimodal Search API",
-    description="CLIP + FAISS Vector search engine backend microservice."
+    description="Optimized CLIP + FAISS Vector search engine backend microservice."
 )
 
-# Enable CORS so React production frontend can securely query this API
+# CORS Middleware Configurations
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -28,10 +27,16 @@ class TextQueryRequest(BaseModel):
 
 @app.get("/health")
 def health_check():
+    """
+    Validates infrastructure availability and server connectivity status.
+    """
     return {"status": "online", "message": "Search infrastructure engine fully initialized."}
 
 @app.post("/search/text")
 def search_by_text(payload: TextQueryRequest):
+    """
+    Processes conceptual text queries to fetch matching items from the Supabase vector index.
+    """
     if not payload.text.strip():
         raise HTTPException(status_code=400, detail="Search phrase cannot be empty.")
     try:
@@ -42,19 +47,25 @@ def search_by_text(payload: TextQueryRequest):
 
 @app.post("/search/image")
 async def search_by_image(file: UploadFile = File(...), top_k: int = Form(3)):
+    """
+    Processes multi-part image uploads to discover visually similar catalog assets.
+    """
     extension = file.filename.split(".")[-1].lower()
     if extension not in ["jpg", "jpeg", "png"]:
-        raise HTTPException(status_code=400, detail="Invalid image layout type. Only JPG, JPEG, and PNG accepted.")
+        raise HTTPException(status_code=400, detail="Invalid layout type. Only JPG, JPEG, and PNG accepted.")
         
     try:
+        # Load raw file binary directly to avoid memory overflows
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
         
+        # Save a localized transient copy for engine preprocessing
         temp_filename = f"temp_upload_{file.filename}"
         image.save(temp_filename)
         
         results = multimodal_search(query_image_path=temp_filename, top_k=top_k)
         
+        # Cleanup storage artifact post-execution
         if os.path.exists(temp_filename):
             os.remove(temp_filename)
             
